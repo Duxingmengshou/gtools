@@ -2,6 +2,7 @@
 imgui/1.92.5
 glfw/3.4
 nlohmann_json/3.11.3
+pugixml/1.14
 
 [generators]
 CMakeToolchain

@@ -8,6 +8,7 @@ find_package(imgui REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(pugixml REQUIRED)
 
 set(GLFW_TARGET glfw)
 if (TARGET glfw::glfw)
@@ -18,3 +19,4 @@ endif()
 
 add_subdirectory(src/app)
 add_subdirectory(plugins/json_formatter)
+add_subdirectory(plugins/xml_formatter)
