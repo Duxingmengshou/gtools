@@ -54,6 +54,7 @@ int main() {
     ImGui_ImplOpenGL2_Init();
 
     PluginLoadResult plugin_result = LoadPlugins(GetDefaultPluginDir());
+    std::vector<char> plugin_visible(plugin_result.plugins.size(), 1);
     ImVec4 clear_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     while (!glfwWindowShouldClose(window)) {
@@ -63,12 +64,24 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Host");
+        const float sidebar_width = 260.0f;
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(ImVec2(sidebar_width, io.DisplaySize.y));
+        ImGuiWindowFlags host_flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        ImGui::Begin("Host", nullptr, host_flags);
         ImGui::Text("Loaded plugins: %d", static_cast<int>(plugin_result.plugins.size()));
-        for (const auto& plugin : plugin_result.plugins) {
-            if (plugin.info && plugin.info->name) {
-                ImGui::BulletText("%s", plugin.info->name);
+        ImGui::SeparatorText("Plugins");
+        for (size_t i = 0; i < plugin_result.plugins.size(); ++i) {
+            const auto& plugin = plugin_result.plugins[i];
+            const char* name = plugin.info && plugin.info->name ? plugin.info->name : plugin.path.c_str();
+            ImGui::PushID(static_cast<int>(i));
+            bool visible = plugin_visible[i] != 0;
+            if (ImGui::Checkbox("##plugin_visible", &visible)) {
+                plugin_visible[i] = visible ? 1 : 0;
             }
+            ImGui::SameLine();
+            ImGui::TextUnformatted(name);
+            ImGui::PopID();
         }
         if (!plugin_result.errors.empty()) {
             ImGui::Separator();
@@ -83,8 +96,9 @@ int main() {
         }
         ImGui::End();
 
-        for (const auto& plugin : plugin_result.plugins) {
-            if (plugin.info && plugin.info->on_frame) {
+        for (size_t i = 0; i < plugin_result.plugins.size(); ++i) {
+            const auto& plugin = plugin_result.plugins[i];
+            if (plugin_visible[i] != 0 && plugin.info && plugin.info->on_frame) {
                 plugin.info->on_frame();
             }
         }

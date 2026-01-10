@@ -14,7 +14,6 @@ void RenderJsonFormatter() {
 
     ImGui::Begin("JSON Formatter");
     ImGui::Text("Input JSON and format it automatically.");
-    ImGui::InputTextMultiline("Input", input_buf, sizeof(input_buf), ImVec2(-1.0f, 200.0f));
 
     if (ImGui::Button("Format")) {
         try {
@@ -34,9 +33,39 @@ void RenderJsonFormatter() {
         std::snprintf(status_buf, sizeof(status_buf), "%s", "Cleared.");
     }
 
+    ImGui::SameLine();
     ImGui::Text("Status: %s", status_buf);
-    ImGui::InputTextMultiline("Output", output_buf, sizeof(output_buf), ImVec2(-1.0f, 200.0f),
-        ImGuiInputTextFlags_ReadOnly);
+    ImGui::Separator();
+
+    ImVec2 avail = ImGui::GetContentRegionAvail();
+    ImGuiTableFlags table_flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp;
+    if (ImGui::BeginTable("JsonPanels", 2, table_flags, ImVec2(0.0f, avail.y))) {
+        ImGui::TableNextColumn();
+        ImGui::BeginChild("InputPanel", ImVec2(0.0f, 0.0f), true);
+        ImGui::TextUnformatted("Input");
+        ImGui::Separator();
+        ImGui::InputTextMultiline(
+            "##Input",
+            input_buf,
+            sizeof(input_buf),
+            ImVec2(-1.0f, -1.0f),
+            ImGuiInputTextFlags_NoHorizontalScroll);
+        ImGui::EndChild();
+
+        ImGui::TableNextColumn();
+        ImGui::BeginChild("OutputPanel", ImVec2(0.0f, 0.0f), true);
+        ImGui::TextUnformatted("Output");
+        ImGui::Separator();
+        ImGui::InputTextMultiline(
+            "##Output",
+            output_buf,
+            sizeof(output_buf),
+            ImVec2(-1.0f, -1.0f),
+            ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_NoHorizontalScroll);
+        ImGui::EndChild();
+
+        ImGui::EndTable();
+    }
     ImGui::End();
 }
 
